@@ -1,0 +1,27 @@
+
+
+label {
+    font-size: 18px;
+}
+
+.title {
+    font-size: 48px;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 40px;
+    }
+}
+
+.text-wrap-nowrap {
+    white-space: nowrap;
+}
+
+.text-align-center {
+    text-align: center;
+}
+
+.text-align-justify {
+    text-align: justify;
+}

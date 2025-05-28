@@ -1,0 +1,63 @@
+@use 'sass:meta';
+
+$spacings: (
+    none: 0,
+    xs: 12px,
+    s: 20px,
+    md: 32px,
+    l: 48px,
+    xl: 64px,
+    xxl: 96px
+);
+
+@each $label, $size in $spacings {
+    .gap-#{$label} {
+        gap: $size;
+    }
+}
+
+$padding-directions: (
+    pad-t: padding-top,
+    pad-b: padding-bottom,
+    pad-l: padding-left,
+    pad-r: padding-right,
+    pad-tb: (padding-top, padding-bottom),
+    pad-lr: (padding-left, padding-right)
+);
+
+$margin-directions: (
+    marg-t: margin-top,
+    marg-b: margin-bottom,
+    marg-l: margin-left,
+    marg-r: margin-right,
+    marg-tb: (margin-top, margin-bottom),
+    marg-lr: (margin-left, margin-right)
+);
+
+@each $prefix, $prop in $padding-directions {
+    @each $label, $size in $spacings {
+        .#{$prefix}-#{$label} {
+        @if meta.type-of($prop) == 'list' {
+            @each $p in $prop {
+            #{$p}: $size;
+            }
+        } @else {
+            #{$prop}: $size;
+        }
+        }
+    }
+}
+
+@each $prefix, $prop in $margin-directions {
+    @each $label, $size in $spacings {
+        .#{$prefix}-#{$label} {
+        @if meta.type-of($prop) == 'list' {
+            @each $p in $prop {
+            #{$p}: $size;
+            }
+        } @else {
+            #{$prop}: $size;
+        }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+.display-flex {
+    display: flex;
+}
+
+.display-flex-reverse {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.display-flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-main-container {
+    flex-shrink: 1;
+    flex-grow: 1;
+    min-height: 0;
+    min-width: 0;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-baseline {
+    align-items: baseline;
+}
