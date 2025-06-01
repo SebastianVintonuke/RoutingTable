@@ -44,13 +44,13 @@ export default class IpDirection {
 
     public with_matches(ipDirection: IpDirection, subnetMask: IpDirection): number | -1 {
         const matchLenght = this.matchLenght(ipDirection);
-        const subnetMaskLength = subnetMask.matchLenght(IpDirection.fromString('255.255.255.255'));
+        const subnetMaskLength = subnetMask.maskLenght();
 
         return (matchLenght < subnetMaskLength) ? -1 : subnetMaskLength;
     }
 
     public differsInTheLastBit(ipDirection: IpDirection, subnetMask: IpDirection): boolean {
-        const subnetMaskLength = subnetMask.matchLenght(IpDirection.fromString('255.255.255.255'));
+        const subnetMaskLength = subnetMask.maskLenght();
         return this.matchLenght(ipDirection) === subnetMaskLength - 1;
     }
 
@@ -61,7 +61,7 @@ export default class IpDirection {
     }
 
     public minus(n: number): IpDirection {
-        const subnetMaskLength = this.matchLenght(IpDirection.fromString('255.255.255.255'));;
+        const subnetMaskLength = this.maskLenght();;
         const newSubnetMask = subnetMaskLength - n;
         return (newSubnetMask < 0) ? IpDirection.subnetMaskFromLength(0) : IpDirection.subnetMaskFromLength(newSubnetMask);
     }
@@ -70,11 +70,15 @@ export default class IpDirection {
         return `${this.firstOctet}.${this.secondOctet}.${this.ThirdOctet}.${this.fourthOctet}`;
     }
 
+    public maskLenght(): number {
+        return this.matchLenght(IpDirection.fromString('255.255.255.255'));
+    }
+
     private octetToBinaryString(n: number): string {
         return n.toString(2).padStart(8, '0');
     }
 
-    private toBinaryString(): string {
+    public toBinaryString(): string {
         return this.octetToBinaryString(this.firstOctet) +
                 this.octetToBinaryString(this.secondOctet) + 
                 this.octetToBinaryString(this.ThirdOctet) +

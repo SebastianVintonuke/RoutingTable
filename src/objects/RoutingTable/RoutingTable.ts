@@ -3,7 +3,12 @@ import IpDirection from '../IpDirection/IpDirection';
 type OptimizationResultLog = {
     type: 'consecutives' | 'redundant' | 'contained',
     affectedEntries: Array<RoutingTableEntry>,
-    resultEntry: RoutingTableEntry
+    resultEntry: RoutingTableEntry,
+    extraInfo?: {
+        binaryDestinationIp1: string,
+        binaryDestinationIp2: string,
+        subnetMaskLength: number
+    }
 }
 
 export type OptimizacionResult = {
@@ -177,6 +182,11 @@ export default class RoutingTable {
                             subnetMask: entry.subnetMask.minus(1),
                             outputInterface: entry.outputInterface,
                             nextHop: entry.nextHop
+                        },
+                        extraInfo: {
+                            binaryDestinationIp1: entry.destinationIp.toBinaryString(),
+                            binaryDestinationIp2: otherEntry.destinationIp.toBinaryString(),
+                            subnetMaskLength: entry.subnetMask.maskLenght()
                         }
                     }
                 }
