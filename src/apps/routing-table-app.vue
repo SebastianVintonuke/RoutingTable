@@ -9,13 +9,13 @@
 			<hr class="pad-b-md">
 			<div class="display-flex-column align-items-center gap-s">
 				<label>{{ 'This two entries are '.concat(row.optimization.type) }}</label>
-				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.optimization.affectedEntries as Array<RoutingTableEntry>) }"/>
+				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.optimization.affectedEntries as Array<RoutingTableEntry>), readonly: true }"/>
 				<label>Can be merged as</label>
-				<RoutingTableComponent :handler="{ entries: toEntryRowArray([row.optimization.resultEntry as RoutingTableEntry]) }"/>
+				<RoutingTableComponent :handler="{ entries: toEntryRowArray([row.optimization.resultEntry as RoutingTableEntry]), readonly: true }"/>
 			</div>
 			<div class="display-flex-column align-items-center gap-s">
 				<label>The table result is</label>
-				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.result as Array<RoutingTableEntry>), displayHeader: true }"/>
+				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.result as Array<RoutingTableEntry>), readonly: true, displayHeader: true }"/>
 			</div>
         </div>
 	</div>
@@ -74,6 +74,7 @@ const buttonHandler: Ref<ButtonHandler> = ref<ButtonHandler>({
 
 		try {
 			routingTableHandler.value.entries.forEach(entry => {
+				if (!/^[0-9]+$/.test(entry.outputInterface)) throw new Error();
 				routingTable.setAnInterface(
 					IpDirection.fromString(entry.destinationIp),
 					IpDirection.fromString(entry.subnetMask),
@@ -94,7 +95,7 @@ const routingTableHandler: Ref<RoutingTableHandler> = ref<RoutingTableHandler>({
 	entries: DEFAULT_ENTRIES,
 	displayHeader: true,
 	allowAddRow: true,
-	editable: true,
+	readonly: false,
 });
 
 const optimizationResults = ref<OptimizacionResult[]>([]);

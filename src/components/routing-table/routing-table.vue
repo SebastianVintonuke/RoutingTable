@@ -13,7 +13,7 @@
                     v-model="row.destinationIp"
                     type="text"
                     placeholder="..."
-                    :disabled="!handler.editable"
+                    :readonly="handler.readonly"
                 />
             </div>
             <div class="cell">
@@ -23,7 +23,7 @@
                     v-model="row.subnetMask"
                     type="text"
                     placeholder="..."
-                    :disabled="!handler.editable"
+                    :readonly="handler.readonly"
                 />
             </div>
             <div class="cell">
@@ -33,7 +33,7 @@
                     v-model="row.outputInterface"
                     type="text"
                     placeholder="..."
-                    :disabled="!handler.editable"
+                    :readonly="handler.readonly"
                 />
             </div>
             <div class="cell">
@@ -43,7 +43,7 @@
                     v-model="row.nextHop"
                     type="text"
                     placeholder="..."
-                    :disabled="!handler.editable"
+                    :readonly="handler.readonly"
                 />
             </div>
         </template>
@@ -58,7 +58,7 @@ export type RoutingTableHandler = {
     entries: EntryRow[];
     displayHeader?: boolean;
     allowAddRow?: boolean;
-    editable?: boolean;
+    readonly?: boolean;
 };
 
 const props = defineProps<{
@@ -194,10 +194,6 @@ function isValidSubnetMask(subnetMask: string): boolean {
     box-sizing: border-box;
     font-size: inherit;
     text-align: center;
-}
-
-.input:disabled {
-    color: #000000;
 }
 
 .input-error {

@@ -21,7 +21,8 @@ export type RoutingTableEntry = {
 export default class RoutingTable {
     static errorNoRouteToDestinationIp = 'No route to destination IP and no default gateway configured.';
     static errorAlreadyExists = 'An interface already exists for the given destination IP and subnet mask, with a different next hop.';
-    static errorInvalidOutputInterfaceNextHop = 'An interface already exists with a different next hop';
+    static errorInvalidOutputInterfaceNextHop = 'An interface already exists with a different next hop.';
+    static errorInvalidOutputInterface = 'Output interface must be a non-negative integer.';
 
     private entries: Array<RoutingTableEntry> = [];
 
@@ -55,6 +56,8 @@ export default class RoutingTable {
     }
 
     private isValidOrThrowError(newEntry: RoutingTableEntry): void {
+        if (newEntry.outputInterface < 0) throw new Error(RoutingTable.errorInvalidOutputInterface);
+
         const alreadyExists = this.entries.some(entry => 
             entry.destinationIp.equals(newEntry.destinationIp) &&
             entry.subnetMask.equals(newEntry.subnetMask) &&
@@ -73,8 +76,6 @@ export default class RoutingTable {
 
         if (isInvalidOuputInterfaceNextHop) throw new Error(RoutingTable.errorInvalidOutputInterfaceNextHop);
     }
-
-    /* OPTIMIZATION */
 
     public optimize(): Array<OptimizacionResult> {
         const currentEntries = [...this.entries];

@@ -27,13 +27,21 @@ const { handler } = props;
     justify-content: center;
     text-align: center;
     border: 1px solid #000000;
+    background-color: #FFFFFF;
     font-size: 18px;
     text-wrap: nowrap;
     cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
-.disabled {
+.button:hover:not(.disabled) {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+.button.disabled {
     color: #ff0000;
     border-color: #ff0000;
     cursor: not-allowed;
+    background-color: #FFFFFF;
 }
 </style>
