@@ -95,7 +95,7 @@ function isValidInterface(outputInterface: string, nextHop: string) {
 }
 
 function isValidNextHop(nextHop: string, outputInterface: string) {
-    return (nextHop === 'on-link' || isValidIP(nextHop)) && !handler.entries.some(entry => entry.outputInterface === outputInterface && entry.nextHop !== nextHop);
+    return (/*nextHop === 'On-link' || */isValidIP(nextHop)) && !handler.entries.some(entry => entry.outputInterface === outputInterface && entry.nextHop !== nextHop);
 }
 
 function isValidIP(ip: string): boolean {
