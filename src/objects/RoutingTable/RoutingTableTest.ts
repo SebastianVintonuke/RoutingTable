@@ -190,7 +190,6 @@ export default class RoutingTableTestCaseTest extends TestCase {
         this.assertEquals(aRoutingTable.nextHopInterface(IpDirection.fromString('127.0.1.10')), 4);
     }
 
-    // Ejemplo agregación de prefijos
     test14OptimizationContiguous() {
         const aRoutingTable = new RoutingTable();
 
@@ -210,6 +209,109 @@ export default class RoutingTableTestCaseTest extends TestCase {
 
         const result = aRoutingTable.optimize();
 
-        this.assert(result);
+        this.assertEquals(result.length, 1);
+        this.assertEquals(result[0].optimization.type, 'consecutives');
+
+        this.assert(result[0].optimization.resultEntry.destinationIp.equals(IpDirection.fromString('192.168.0.0')));
+        this.assert(result[0].optimization.resultEntry.subnetMask.equals(IpDirection.fromString('255.255.254.0')));
+        this.assertEquals(result[0].optimization.resultEntry.outputInterface, 1);
+        this.assert(result[0].optimization.resultEntry.nextHop.equals(IpDirection.fromString('1.1.1.1')));
+    }
+
+    test15OptimizationRedundant() {
+        const aRoutingTable = new RoutingTable();
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('0.0.0.0'),
+            IpDirection.fromString('0.0.0.0'),
+            0,
+            IpDirection.fromString('0.0.0.0')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('0.0.0.0'),
+            IpDirection.fromString('0.0.0.0'),
+            0,
+            IpDirection.fromString('0.0.0.0')
+        );
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 1);
+        this.assertEquals(result[0].optimization.type, 'redundant');
+
+        this.assert(result[0].optimization.resultEntry.destinationIp.equals(IpDirection.fromString('0.0.0.0')));
+        this.assert(result[0].optimization.resultEntry.subnetMask.equals(IpDirection.fromString('0.0.0.0')));
+        this.assertEquals(result[0].optimization.resultEntry.outputInterface, 0);
+        this.assert(result[0].optimization.resultEntry.nextHop.equals(IpDirection.fromString('0.0.0.0')));
+    }
+
+    test16OptimizationRedundantIsSolvedBeforeOptimizationContiguous() {
+        const aRoutingTable = new RoutingTable();
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.1.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('0.0.0.0'),
+            IpDirection.fromString('0.0.0.0'),
+            0,
+            IpDirection.fromString('0.0.0.0')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('0.0.0.0'),
+            IpDirection.fromString('0.0.0.0'),
+            0,
+            IpDirection.fromString('0.0.0.0')
+        );
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 2);
+        this.assertEquals(result[0].optimization.type, 'redundant');
+        this.assertEquals(result[1].optimization.type, 'consecutives');
+    }
+
+    test17OptimizationContiguousNested() {
+        const aRoutingTable = new RoutingTable();
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.1.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.2.0'),
+            IpDirection.fromString('255.255.254.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 2);
+        this.assertEquals(result[0].optimization.type, 'consecutives');
+        this.assertEquals(result[1].optimization.type, 'consecutives');
     }
 }

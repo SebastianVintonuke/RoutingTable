@@ -196,6 +196,10 @@ function isValidSubnetMask(subnetMask: string): boolean {
     text-align: center;
 }
 
+.input:disabled {
+    color: #000000;
+}
+
 .input-error {
     color: #ff0000;
 }

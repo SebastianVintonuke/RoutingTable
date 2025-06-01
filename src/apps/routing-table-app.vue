@@ -9,13 +9,13 @@
 			<hr class="pad-b-md">
 			<div class="display-flex-column align-items-center gap-s">
 				<label>{{ 'This two entries are '.concat(row.optimization.type) }}</label>
-				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.optimization.affectedEntries) }"/>
+				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.optimization.affectedEntries as Array<RoutingTableEntry>) }"/>
 				<label>Can be merged as</label>
-				<RoutingTableComponent :handler="{ entries: toEntryRowArray([row.optimization.resultEntry]) }"/>
+				<RoutingTableComponent :handler="{ entries: toEntryRowArray([row.optimization.resultEntry as RoutingTableEntry]) }"/>
 			</div>
 			<div class="display-flex-column align-items-center gap-s">
 				<label>The table result is</label>
-				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.result), displayHeader: true }"/>
+				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.result as Array<RoutingTableEntry>), displayHeader: true }"/>
 			</div>
         </div>
 	</div>
@@ -111,7 +111,9 @@ const onOptimize = () => {
 	});
 
 	optimizationResults.value = [];
-	optimizationResults.value = routingTable.optimize();
+	requestAnimationFrame(() => {
+		optimizationResults.value = routingTable.optimize();
+	});
 };
 
 function toEntryRowArray(entries: Array<RoutingTableEntry>): Array<EntryRow> {

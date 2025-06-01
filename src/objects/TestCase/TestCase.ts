@@ -1,27 +1,27 @@
 export default class TestCase {
     setUp() {}
 
-    assert(aBooleanOrBlock) {
+    assert(aBooleanOrBlock: boolean | (() => boolean)): boolean {
         if (typeof aBooleanOrBlock === 'boolean') {
             if (!aBooleanOrBlock) {
                 throw new Error('Assertion failed');
             } else {
-                return true
+                return true;
             }
         } else {
             if (!aBooleanOrBlock()) {
                 throw new Error('Assertion failed');
             } else {
-                return true
+                return true;
             }
         }
     }
 
-    deny(aBoolean) {
+    deny(aBoolean: boolean): boolean {
         return this.assert(!aBoolean);
     }
 
-    assertEquals(actual, expected) {
+    assertEquals(actual: any, expected: any): boolean {
         if (actual && typeof actual.equals === 'function') {
             if (!actual.equals(expected)) {
                 throw new Error(`Expected "${expected}" but was "${actual}"`);
@@ -31,15 +31,15 @@ export default class TestCase {
                 throw new Error(`Expected "${expected}" but was "${actual}"`);
             }
         }
-        return true
+        return true;
     }
 
-    shouldRaise(aBlock, anExceptionMessage) {
+    shouldRaise(aBlock: () => void, anExceptionMessage: string): boolean {
         try {
-            aBlock()
-        } catch (error) {
-            if (error.message == anExceptionMessage) {
-                return true
+            aBlock();
+        } catch (error: any) {
+            if (error.message === anExceptionMessage) {
+                return true;
             } else {
                 throw new Error(`Expected error "${anExceptionMessage}" but was "${error.message}"`);
             }
@@ -47,7 +47,7 @@ export default class TestCase {
         throw new Error('Assertion failed');
     }
 
-    runTests() {
+    runTests(): void {
         console.log(this.constructor.name);
         const messages = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
         let run = 0;
@@ -55,7 +55,7 @@ export default class TestCase {
         let failed = 0;
         let errors = 0;
         for (const message of messages) {
-            const method = this[message];
+            const method = (this as any)[message];
             if (typeof method === 'function' && message.startsWith('test')) {
                 run++;
                 try {
@@ -63,7 +63,7 @@ export default class TestCase {
                     method.call(this);
                     passed++;
                     console.log(`Test '${message}' ${this.formatTextInGreen('passed')}.`);
-                } catch (error) {
+                } catch (error: any) {
                     if (this.isATestingError(error)) {
                         failed++;
                         console.error(`Test '${message}' ${this.formatTextInYellow('failed')}:`, error);
@@ -77,22 +77,22 @@ export default class TestCase {
         console.log(`${run} run, ${this.formatTextInGreen(`${passed} passed`)}, ${this.formatTextInYellow(`${failed} failed`)}, ${this.formatTextInRed(`${errors} error`)}`);
     }
 
-    isATestingError(error) {
+    isATestingError(error: Error): boolean {
         // Should refactor and use regexs
         return error.message === 'Assertion failed' ||
-            error.message.includes('Expected "') && error.message.includes(" but was ") ||
-            error.message.includes('Expected error "') && error.message.includes(" but was ")
+            (error.message.includes('Expected "') && error.message.includes(" but was ")) ||
+            (error.message.includes('Expected error "') && error.message.includes(" but was "));
     }
 
-    formatTextInGreen(text) {
+    formatTextInGreen(text: string): string {
         return `\x1b[32m${text}\x1b[0m`;
     }
 
-    formatTextInYellow(text) {
+    formatTextInYellow(text: string): string {
         return `\x1b[33m${text}\x1b[0m`;
     }
 
-    formatTextInRed(text) {
+    formatTextInRed(text: string): string {
         return `\x1b[31m${text}\x1b[0m`;
     }
 }
