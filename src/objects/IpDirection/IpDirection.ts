@@ -98,4 +98,34 @@ export default class IpDirection {
             (this.ThirdOctet << 8) |
             this.fourthOctet;
     }
+
+    public isLessSpecificThan(otherSubnetMask: IpDirection): boolean {
+        return this.maskLenght() < otherSubnetMask.maskLenght();
+    }
+
+    public isMoreSpecificThan(otherSubnetMask: IpDirection): boolean {
+        return this.maskLenght() > otherSubnetMask.maskLenght();
+    }
+
+    public isContainedBy(subnetMask: IpDirection, other: IpDirection, otherSubnetMask: IpDirection): boolean {
+        const base = this.toNumber() >>> 0;
+        const mask = subnetMask.toNumber() >>> 0;
+        const otherBase = other.toNumber() >>> 0;
+        const otherMask = otherSubnetMask.toNumber() >>> 0;
+
+        const min = base & mask;
+        const max = base | (~mask >>> 0);
+
+        const otherMin = otherBase & otherMask;
+        const otherMax = otherBase | (~otherMask >>> 0);
+
+        return (min >>> 0) >= (otherMin >>> 0) && (max >>> 0) <= (otherMax >>> 0);
+    }
+
+    public lastIpDefinedBy(subnetMask: IpDirection): IpDirection {
+        const base = this.toNumber() >>> 0;
+        const mask = subnetMask.toNumber() >>> 0;
+        const broadcast = base | (~mask >>> 0);
+        return IpDirection.fromNumber(broadcast >>> 0);
+    }
 }

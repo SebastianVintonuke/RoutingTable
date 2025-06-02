@@ -1,21 +1,32 @@
 <template>
 	<div class="routing-table-app display-flex-column flex-main-container align-items-center gap-xl" >
 		<div class="display-flex-column align-items-center gap-l">
-			<label class="title text-wrap-nowrap">Routin Table</label>
+			<label class="title text-wrap-nowrap">Routing Table</label>
 			<RoutingTableComponent :handler="routingTableHandler"/>
 			<Button :handler="buttonHandler"/>
 		</div>
         <div v-for="(row, index) in optimizationResults" :key="index" class="display-flex-column align-items-center gap-md">
 			<hr class="pad-b-md">
 			<div class="display-flex-column align-items-center gap-s">
-				<label>{{ 'This two entries are '.concat(row.optimization.type) }}</label>
+				<label>{{ logFirstLabel(row.optimization.type) }}</label>
 				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.optimization.affectedEntries as Array<RoutingTableEntry>), readonly: true }"/>
-				<div v-if="row.optimization.extraInfo" class="display-flex-column">
-					<BinarySegmentMask :handler="{ directionIp: row.optimization.extraInfo.binaryDestinationIp1, maskLength: row.optimization.extraInfo.subnetMaskLength }"/>
-					<BinarySegmentMask :handler="{ directionIp: row.optimization.extraInfo.binaryDestinationIp2, maskLength: row.optimization.extraInfo.subnetMaskLength }"/>
+				<div v-if="row.optimization.consecutivesExtraInfo" class="display-flex-column">
+					<BinarySegmentMask :handler="{ directionIp: row.optimization.consecutivesExtraInfo.binaryDestinationIp1, maskLength: row.optimization.consecutivesExtraInfo.subnetMaskLength }"/>
+					<BinarySegmentMask :handler="{ directionIp: row.optimization.consecutivesExtraInfo.binaryDestinationIp2, maskLength: row.optimization.consecutivesExtraInfo.subnetMaskLength }"/>
 				</div>
-				<label>Can be merged as</label>
+				<label>{{ logSecondLabel(row.optimization.type) }}</label>
 				<RoutingTableComponent :handler="{ entries: toEntryRowArray([row.optimization.resultEntry as RoutingTableEntry]), readonly: true }"/>
+				<div v-if="row.optimization.containedExtraInfo" class="display-flex-column align-items-center text-align-center gap-s">
+					<div class="display-flex-column align-items-center text-align-center gap-xs">
+						<label> {{ 'Range of outer entry' }} </label>
+						<label> {{ row.optimization.containedExtraInfo.outerEntryStart + ' - ' + row.optimization.containedExtraInfo.outerEntryEnd }} </label>
+					</div>
+					<div class="display-flex-column align-items-center text-align-center gap-xs">
+						<label> {{ 'Range of inner entry' }} </label>
+						<label> {{ row.optimization.containedExtraInfo.innerEntryStart + ' - ' + row.optimization.containedExtraInfo.innerEntryEnd }} </label>
+					</div>
+					<label> And there isn't any other entry in between with a different output interface </label>
+				</div>
 			</div>
 			<div class="display-flex-column align-items-center gap-s">
 				<label>The table result is</label>
@@ -40,7 +51,51 @@ import type { ButtonHandler } from '../components/button/button.vue';
 import BinarySegmentMask from '../components/binary-segment-mask/binary-segment-mask.vue';
 
 const DEFAULT_ENTRIES = [
-    {
+	// Example parcial
+	/*{
+        destinationIp: '186.33.221.0',
+        subnetMask: '255.255.255.0',
+        outputInterface: '1',
+        nextHop: '10.57.192.85',
+    },
+	{
+        destinationIp: '186.33.220.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '1',
+        nextHop: '10.57.192.85',
+    },
+	{
+        destinationIp: '186.33.216.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '1',
+        nextHop: '10.57.192.85',
+    },
+	{
+        destinationIp: '186.33.212.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '1',
+        nextHop: '10.57.192.85',
+    },
+	{
+        destinationIp: '186.33.208.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '1',
+        nextHop: '10.57.192.85',
+    },
+	{
+        destinationIp: '186.33.0.0',
+        subnetMask: '255.255.0.0',
+        outputInterface: '2',
+        nextHop: '10.57.22.10',
+    },
+	{
+        destinationIp: '0.0.0.0',
+        subnetMask: '0.0.0.0',
+        outputInterface: '2',
+        nextHop: '10.57.22.10',
+    },*/
+	// Example consecutives
+	{
         destinationIp: '192.168.0.0',
         subnetMask: '255.255.255.0',
         outputInterface: '1',
@@ -51,13 +106,34 @@ const DEFAULT_ENTRIES = [
         subnetMask: '255.255.255.0',
         outputInterface: '1',
         nextHop: '1.1.1.1',
-    }/*,
-	{
+    },
+	// Example nested consecutives
+	/*{
         destinationIp: '192.168.2.0',
         subnetMask: '255.255.254.0',
         outputInterface: '1',
         nextHop: '1.1.1.1',
     },
+	{ // Example contained
+		destinationIp: '100.100.0.0',
+		subnetMask: '255.255.0.0',
+		outputInterface: '0',
+		nextHop: '0.0.0.0',
+	},
+	// Example contained with conflict
+	{
+		destinationIp: '10.0.0.0',
+		subnetMask: '255.0.0.0',
+		outputInterface: '2', 
+		nextHop: '2.2.2.2',
+	},
+	{
+		destinationIp: '10.1.0.0',
+		subnetMask: '255.255.0.0',
+		outputInterface: '0',
+		nextHop: '0.0.0.0',
+	},
+	// Example redundant
 	{
         destinationIp: '0.0.0.0',
         subnetMask: '0.0.0.0',
@@ -147,6 +223,30 @@ function toRoutingTableEntry(entry: EntryRow): RoutingTableEntry {
 		nextHop: IpDirection.fromString(entry.nextHop),
 	};
 };
+
+function logFirstLabel(optimizationType: 'consecutives' | 'redundant' | 'contained'): string {
+	switch (optimizationType) {
+		case 'consecutives':
+		case 'redundant':
+			return 'This two entries are '.concat(optimizationType);
+		case 'contained':
+			return 'This entry';
+		default:
+			return '';
+	}
+}
+
+function logSecondLabel(optimizationType: 'consecutives' | 'redundant' | 'contained'): string {
+	switch (optimizationType) {
+		case 'consecutives':
+		case 'redundant':
+			return 'Can be merged as';
+		case 'contained':
+			return 'is contained in';
+		default:
+			return '';
+	}
+}
 </script>
 
 <style scoped lang="scss">	

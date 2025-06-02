@@ -138,7 +138,7 @@ function isValidSubnetMask(subnetMask: string): boolean {
     grid-template-columns: repeat(4, minmax(80px, 180px));
 }
 
-@media (max-width: 770px) {
+@media (max-width: 767px) {
     .grid {
         font-size: 10px;
     }
