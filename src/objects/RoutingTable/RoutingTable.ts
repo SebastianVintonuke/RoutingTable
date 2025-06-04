@@ -250,11 +250,14 @@ export default class RoutingTable {
                 for (const third of allEntries) {
                     if (third === outer || third === inner) continue;
 
-                    const isMoreSpecific = inner.subnetMask.isMoreSpecificThan(third.subnetMask);
-                    const isContained = inner.destinationIp.isContainedBy(inner.subnetMask, third.destinationIp, third.subnetMask);
+                    const outerIsMoreSpecific = outer.subnetMask.isMoreSpecificThan(third.subnetMask);
+                    const outerIsContained = outer.destinationIp.isContainedBy(inner.subnetMask, third.destinationIp, third.subnetMask);
+                    const innerIsMoreSpecific = inner.subnetMask.isMoreSpecificThan(third.subnetMask);
+                    const innerIsContained = inner.destinationIp.isContainedBy(inner.subnetMask, third.destinationIp, third.subnetMask);
                     const conflicts = third.outputInterface !== inner.outputInterface;
 
-                    if (isMoreSpecific && isContained && conflicts) return null;
+                    // If the third route is between the outer and inner ones and has a different next hop.
+                    if (!outerIsMoreSpecific && !outerIsContained && innerIsMoreSpecific && innerIsContained && conflicts) return null;
                 }
 
                 return {

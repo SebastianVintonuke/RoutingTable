@@ -314,4 +314,30 @@ export default class RoutingTableTestCaseTest extends TestCase {
         this.assertEquals(result[0].optimization.type, 'consecutives');
         this.assertEquals(result[1].optimization.type, 'consecutives');
     }
+
+    test18OptimizationContainedWithDefaultGateway() {
+        const aRoutingTable = new RoutingTable();
+
+        this.setDefaultGatewayTo(aRoutingTable, 0, IpDirection.fromString('0.0.0.0'));
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.0.0.0'),
+            IpDirection.fromString('255.0.0.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 1);
+        this.assertEquals(result[0].optimization.type, 'contained');
+        this.assertEquals(result[0].optimization.affectedEntries[0].destinationIp.toString(), '192.168.0.0')
+    }
 }
