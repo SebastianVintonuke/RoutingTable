@@ -199,11 +199,11 @@ const onOptimize = () => {
 };
 
 function toEntryRowArray(entries: Array<RoutingTableEntry>): Array<EntryRow> {
-	return entries.sort((a, b) => b.outputInterface - a.outputInterface).map(entry => toEntryRow(entry));
+	return entries.sort((a, b) => a.outputInterface - b.outputInterface).map(entry => toEntryRow(entry));
 };
 
 function toRoutingTableEntryArray(entries: Array<EntryRow>): Array<RoutingTableEntry> {
-	return entries.map(entry => toRoutingTableEntry(entry)).sort((a, b) => b.outputInterface - a.outputInterface);
+	return entries.map(entry => toRoutingTableEntry(entry)).sort((a, b) => a.outputInterface - b.outputInterface);
 };
 
 function toEntryRow(entry: RoutingTableEntry): EntryRow {
