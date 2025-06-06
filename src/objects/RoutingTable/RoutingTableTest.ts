@@ -190,6 +190,8 @@ export default class RoutingTableTestCaseTest extends TestCase {
         this.assertEquals(aRoutingTable.nextHopInterface(IpDirection.fromString('127.0.1.10')), 4);
     }
 
+    // Optimization
+
     test14OptimizationContiguous() {
         const aRoutingTable = new RoutingTable();
 
@@ -315,21 +317,19 @@ export default class RoutingTableTestCaseTest extends TestCase {
         this.assertEquals(result[1].optimization.type, 'consecutives');
     }
 
-    test18OptimizationContainedWithDefaultGateway() {
+    test18OptimizationContained() {
         const aRoutingTable = new RoutingTable();
 
-        this.setDefaultGatewayTo(aRoutingTable, 0, IpDirection.fromString('0.0.0.0'));
-
         aRoutingTable.setAnInterface(
-            IpDirection.fromString('192.168.0.0'),
-            IpDirection.fromString('255.255.255.0'),
+            IpDirection.fromString('192.0.0.0'),
+            IpDirection.fromString('255.0.0.0'),
             1,
             IpDirection.fromString('1.1.1.1')
         );
 
         aRoutingTable.setAnInterface(
-            IpDirection.fromString('192.0.0.0'),
-            IpDirection.fromString('255.0.0.0'),
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.255.0'),
             1,
             IpDirection.fromString('1.1.1.1')
         );
@@ -339,5 +339,98 @@ export default class RoutingTableTestCaseTest extends TestCase {
         this.assertEquals(result.length, 1);
         this.assertEquals(result[0].optimization.type, 'contained');
         this.assertEquals(result[0].optimization.affectedEntries[0].destinationIp.toString(), '192.168.0.0')
+        this.assertEquals(result[0].optimization.resultEntry.destinationIp.toString(), '192.0.0.0')
+    }
+
+    test19OptimizationContainedWithOtherInTheMiddle() {
+        const aRoutingTable = new RoutingTable();
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.0.0.0'),
+            IpDirection.fromString('255.0.0.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.0.0'),
+            2,
+            IpDirection.fromString('2.2.2.2')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 0);
+    }
+
+    test20OptimizationContainedWithDefaultGateway() {
+        const aRoutingTable = new RoutingTable();
+
+        this.setDefaultGatewayTo(aRoutingTable, 0, IpDirection.fromString('0.0.0.0'));
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.0.0.0'),
+            IpDirection.fromString('255.0.0.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('192.168.0.0'),
+            IpDirection.fromString('255.255.255.0'),
+            1,
+            IpDirection.fromString('1.1.1.1')
+        );
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 1);
+        this.assertEquals(result[0].optimization.type, 'contained');
+        this.assertEquals(result[0].optimization.affectedEntries[0].destinationIp.toString(), '192.168.0.0')
+    }
+
+    test21OptimizationContainedWithOtherInTheMiddleAndDefaultGateway() {
+        const aRoutingTable = new RoutingTable();
+
+        // 163.9.162.0 - 163.9.163.255 => 4
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('163.9.162.0'),
+            IpDirection.fromString('255.255.254.0'),
+            4,
+            IpDirection.fromString('10.119.240.13')
+        );
+
+        // 163.9.160.0 - 163.9.175.255 => 1
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('163.9.160.0'),
+            IpDirection.fromString('255.255.240.0'),
+            1,
+            IpDirection.fromString('163.9.163.69')
+        );
+
+        // 163.9.160.0 - 163.9.191.255 => 4
+        aRoutingTable.setAnInterface(
+            IpDirection.fromString('163.9.160.0'),
+            IpDirection.fromString('255.255.224.0 '),
+            4,
+            IpDirection.fromString('10.119.240.13')
+        );
+
+        // 0.0.0.0 - 255.255.255.255 => 4
+        this.setDefaultGatewayTo(aRoutingTable, 4, IpDirection.fromString('10.119.240.13'));
+
+        const result = aRoutingTable.optimize();
+
+        this.assertEquals(result.length, 1);
+        this.assertEquals(result[0].optimization.type, 'contained');
+        this.assertEquals(result[0].optimization.affectedEntries[0].destinationIp.toString(), '163.9.160.0')
     }
 }

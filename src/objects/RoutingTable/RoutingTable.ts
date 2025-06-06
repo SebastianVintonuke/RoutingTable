@@ -251,7 +251,7 @@ export default class RoutingTable {
                     if (third === outer || third === inner) continue;
 
                     const outerIsMoreSpecific = outer.subnetMask.isMoreSpecificThan(third.subnetMask);
-                    const outerIsContained = outer.destinationIp.isContainedBy(inner.subnetMask, third.destinationIp, third.subnetMask);
+                    const outerIsContained = outer.destinationIp.isContainedBy(outer.subnetMask, third.destinationIp, third.subnetMask);
                     const innerIsMoreSpecific = inner.subnetMask.isMoreSpecificThan(third.subnetMask);
                     const innerIsContained = inner.destinationIp.isContainedBy(inner.subnetMask, third.destinationIp, third.subnetMask);
                     const conflicts = third.outputInterface !== inner.outputInterface;
