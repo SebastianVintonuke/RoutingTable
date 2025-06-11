@@ -51,6 +51,61 @@ import type { ButtonHandler } from '../components/button/button.vue';
 import BinarySegmentMask from '../components/binary-segment-mask/binary-segment-mask.vue';
 
 const DEFAULT_ENTRIES = [
+	// Example ejercicio
+	{
+        destinationIp: '163.9.172.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '1',
+        nextHop: '163.9.163.69',
+    },
+	{
+        destinationIp: '163.9.160.0',
+        subnetMask: '255.255.248.0',
+        outputInterface: '1',
+        nextHop: '163.9.163.69',
+    },
+	{
+        destinationIp: '163.9.168.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '1',
+        nextHop: '163.9.163.69',
+    },
+	{
+        destinationIp: '163.9.212.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '2',
+        nextHop: '10.123.115.0',
+    },
+	{
+        destinationIp: '163.9.216.0',
+        subnetMask: '255.255.252.0',
+        outputInterface: '2',
+        nextHop: '10.123.115.0',
+    },
+	{
+        destinationIp: '163.9.162.27',
+        subnetMask: '255.255.255.255',
+        outputInterface: '3',
+        nextHop: 'On-link',
+    },
+	{
+        destinationIp: '163.9.162.0',
+        subnetMask: '255.255.254.0',
+        outputInterface: '4',
+        nextHop: '10.119.240.13',
+    },
+	{
+        destinationIp: '163.9.160.0',
+        subnetMask: '255.255.224.0',
+        outputInterface: '4',
+        nextHop: '10.119.240.13',
+    },
+	{
+        destinationIp: '0.0.0.0',
+        subnetMask: '0.0.0.0',
+        outputInterface: '4',
+        nextHop: '10.119.240.13',
+    },
 	// Example parcial
 	/*{
         destinationIp: '186.33.221.0',
@@ -93,7 +148,7 @@ const DEFAULT_ENTRIES = [
         subnetMask: '0.0.0.0',
         outputInterface: '2',
         nextHop: '10.57.22.10',
-    },*/
+    },
 	// Example consecutives
 	{
         destinationIp: '192.168.0.0',
@@ -108,7 +163,7 @@ const DEFAULT_ENTRIES = [
         nextHop: '1.1.1.1',
     },
 	// Example nested consecutives
-	/*{
+	{
         destinationIp: '192.168.2.0',
         subnetMask: '255.255.254.0',
         outputInterface: '1',
