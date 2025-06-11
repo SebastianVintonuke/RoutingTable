@@ -71,39 +71,27 @@ const DEFAULT_ENTRIES = [
         nextHop: '163.9.163.69',
     },
 	{
-        destinationIp: '163.9.212.0',
-        subnetMask: '255.255.252.0',
-        outputInterface: '2',
-        nextHop: '10.123.115.0',
-    },
-	{
-        destinationIp: '163.9.216.0',
-        subnetMask: '255.255.252.0',
-        outputInterface: '2',
-        nextHop: '10.123.115.0',
-    },
-	{
         destinationIp: '163.9.162.27',
         subnetMask: '255.255.255.255',
-        outputInterface: '3',
+        outputInterface: '2',
         nextHop: 'On-link',
     },
 	{
         destinationIp: '163.9.162.0',
         subnetMask: '255.255.254.0',
-        outputInterface: '4',
+        outputInterface: '3',
         nextHop: '10.119.240.13',
     },
 	{
         destinationIp: '163.9.160.0',
         subnetMask: '255.255.224.0',
-        outputInterface: '4',
+        outputInterface: '3',
         nextHop: '10.119.240.13',
     },
 	{
         destinationIp: '0.0.0.0',
         subnetMask: '0.0.0.0',
-        outputInterface: '4',
+        outputInterface: '3',
         nextHop: '10.119.240.13',
     },
 	// Example parcial
