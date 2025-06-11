@@ -176,6 +176,7 @@ const routingTableHandler: Ref<RoutingTableHandler> = ref<RoutingTableHandler>({
 	entries: DEFAULT_ENTRIES,
 	displayHeader: true,
 	allowAddRow: true,
+	allowRemoveRow: true,
 	readonly: false,
 });
 

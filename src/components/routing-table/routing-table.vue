@@ -1,9 +1,10 @@
 <template>
-    <div class="grid">
+    <div class="grid" :class="{ 'five-columns': handler.allowRemoveRow && handler.entries.length > 2 }">
         <div v-if="handler.displayHeader" class='cell header'>Destination</div>
         <div v-if="handler.displayHeader" class='cell header'>Mask</div>
         <div v-if="handler.displayHeader" class='cell header'>Interface</div>
         <div v-if="handler.displayHeader" class='cell header'>Next Hop</div>
+        <div v-if="handler.displayHeader && handler.allowRemoveRow && handler.entries.length > 2" class='cell header border-right-none'></div>
 
         <template v-for="(row, index) in handler.entries" :key="index">
             <div class="cell">
@@ -46,6 +47,7 @@
                     :readonly="handler.readonly"
                 />
             </div>
+            <div v-if="handler.allowRemoveRow && handler.entries.length > 2" class="cell remove-row" @click="removeRow(index)">-</div>
         </template>
 
         <div v-if="handler.allowAddRow" class="cell add-row" @click="addRow">+</div>
@@ -58,6 +60,7 @@ export type RoutingTableHandler = {
     entries: EntryRow[];
     displayHeader?: boolean;
     allowAddRow?: boolean;
+    allowRemoveRow?: boolean;
     readonly?: boolean;
 };
 
@@ -81,6 +84,11 @@ const addRow = () => {
         nextHop: '',
     };
     handler.entries.push(newEntry);
+};
+
+const removeRow = (index: number) => {
+    handler.entries.splice(index, 1);
+    handler.entries = [...handler.entries];
 };
 
 function isValidDestination(destinationIp: string) {
@@ -144,6 +152,10 @@ function isValidSubnetMask(subnetMask: string): boolean {
     }
 }
 
+.five-columns {
+    grid-template-columns: repeat(4, minmax(80px, 180px)) 25px;
+}
+
 .header {
     font-weight: bold;
     user-select: none;
@@ -161,12 +173,23 @@ function isValidSubnetMask(subnetMask: string): boolean {
     border-bottom: 1px solid #000000;
 }
 
-.cell:nth-child(4n + 1) {
+.grid:not(.five-columns) .cell:nth-child(4n + 1) {
+    border-left: 1px solid #000000;
+}
+.grid:not(.five-columns) .cell:nth-child(-n + 4) {
+    border-top: 1px solid #000000;
+}
+
+.grid.five-columns .cell:nth-child(5n + 1) {
     border-left: 1px solid #000000;
 }
 
-.cell:nth-child(-n + 4) {
+.grid.five-columns .cell:nth-child(-n + 4) {
     border-top: 1px solid #000000;
+}
+
+.border-right-none {
+    border-right: none;
 }
 
 .add-row {
@@ -176,6 +199,19 @@ function isValidSubnetMask(subnetMask: string): boolean {
     justify-content: center;
     text-align: center;
     border-left: 1px solid #000000;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.remove-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
