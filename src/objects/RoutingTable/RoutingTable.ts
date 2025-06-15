@@ -1,4 +1,4 @@
-import IpDirection from '../IpDirection/IpDirection';
+import IpAddress from '../IpAddress/IpAddress';
 
 type OptimizationResultLog = {
     type: 'consecutives' | 'redundant' | 'contained',
@@ -23,10 +23,10 @@ export type OptimizacionResult = {
 }
 
 export type RoutingTableEntry = {
-    destinationIp: IpDirection,
-    subnetMask: IpDirection,
+    destinationIp: IpAddress,
+    subnetMask: IpAddress,
     outputInterface: number,
-    nextHop: IpDirection
+    nextHop: IpAddress
 }
 
 export default class RoutingTable {
@@ -37,11 +37,11 @@ export default class RoutingTable {
 
     private entries: Array<RoutingTableEntry> = [];
 
-    public nextHopInterface(ipDirection: IpDirection): number {
+    public nextHopInterface(ipAddress: IpAddress): number {
         const matches = new Array<{ entry: RoutingTableEntry, subnetMaskLength: number }>();
 
         this.entries.forEach(entry => {
-            const subnetMaskLength = entry.destinationIp.with_matches(ipDirection, entry.subnetMask);
+            const subnetMaskLength = entry.destinationIp.with_matches(ipAddress, entry.subnetMask);
             if (subnetMaskLength === -1) return;
             matches.push({ entry, subnetMaskLength });
         });
@@ -53,7 +53,7 @@ export default class RoutingTable {
         return matches[0].entry.outputInterface;
     }
 
-    public setAnInterface(destinationIp: IpDirection, subnetMask: IpDirection, outputInterface: number, nextHop: IpDirection): void {
+    public setAnInterface(destinationIp: IpAddress, subnetMask: IpAddress, outputInterface: number, nextHop: IpAddress): void {
         const newEntry: RoutingTableEntry = {
             destinationIp: destinationIp,
             subnetMask: subnetMask,

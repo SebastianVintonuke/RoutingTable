@@ -1,30 +1,30 @@
-export default class IpDirection {
-    static fromString(aString: string): IpDirection {
+export default class IpAddress {
+    static fromString(aString: string): IpAddress {
         if (aString.trim().toLowerCase() === 'on-link') {
-            return new IpDirectionOnLink();
+            return new IpAddressOnLink();
         }
 
         const octets = aString.split('.').map(Number);
         if (octets.length !== 4 || octets.some(octet => isNaN(octet) || octet < 0 || octet > 255)) {
             throw new Error('Invalid IP address format.');
         }
-        return new IpDirection(octets[0], octets[1], octets[2], octets[3]);
+        return new IpAddress(octets[0], octets[1], octets[2], octets[3]);
     }
 
-    private static fromNumber(num: number): IpDirection {
+    private static fromNumber(num: number): IpAddress {
         const first = (num >>> 24) & 0xFF;
         const second = (num >>> 16) & 0xFF;
         const third = (num >>> 8) & 0xFF;
         const fourth = num & 0xFF;
-        return new IpDirection(first, second, third, fourth);
+        return new IpAddress(first, second, third, fourth);
     }
 
-    private static subnetMaskFromLength(length: number): IpDirection {
+    private static subnetMaskFromLength(length: number): IpAddress {
         if (length < 0 || length > 32) {
             throw new Error('Invalid prefix length');
         }
         const mask = length === 0 ? 0 : 0xFFFFFFFF << (32 - length);
-        return IpDirection.fromNumber(mask >>> 0);
+        return IpAddress.fromNumber(mask >>> 0);
     }
 
     private firstOctet: number;
@@ -39,35 +39,35 @@ export default class IpDirection {
         this.fourthOctet = fourthOctet;
     }
 
-    public equals(other: IpDirection): boolean {
+    public equals(other: IpAddress): boolean {
         return this.firstOctet === other.firstOctet &&
                 this.secondOctet === other.secondOctet &&
                 this.ThirdOctet === other.ThirdOctet &&
                 this.fourthOctet === other.fourthOctet;
     }
 
-    public with_matches(ipDirection: IpDirection, subnetMask: IpDirection): number | -1 {
-        const matchLenght = this.matchLenght(ipDirection);
+    public with_matches(ipIpAddress: IpAddress, subnetMask: IpAddress): number | -1 {
+        const matchLenght = this.matchLenght(ipIpAddress);
         const subnetMaskLength = subnetMask.maskLenght();
 
         return (matchLenght < subnetMaskLength) ? -1 : subnetMaskLength;
     }
 
-    public differsInTheLastBit(ipDirection: IpDirection, subnetMask: IpDirection): boolean {
+    public differsInTheLastBit(ipIpAddress: IpAddress, subnetMask: IpAddress): boolean {
         const subnetMaskLength = subnetMask.maskLenght();
-        return this.matchLenght(ipDirection) === subnetMaskLength - 1;
+        return this.matchLenght(ipIpAddress) === subnetMaskLength - 1;
     }
 
-    public min(other: IpDirection): IpDirection {
+    public min(other: IpAddress): IpAddress {
         const thisAsNumber = this.toNumber();
         const otherNumber = other.toNumber();
-        return IpDirection.fromNumber((thisAsNumber <= otherNumber) ? thisAsNumber : otherNumber);
+        return IpAddress.fromNumber((thisAsNumber <= otherNumber) ? thisAsNumber : otherNumber);
     }
 
-    public minus(n: number): IpDirection {
+    public minus(n: number): IpAddress {
         const subnetMaskLength = this.maskLenght();;
         const newSubnetMask = subnetMaskLength - n;
-        return (newSubnetMask < 0) ? IpDirection.subnetMaskFromLength(0) : IpDirection.subnetMaskFromLength(newSubnetMask);
+        return (newSubnetMask < 0) ? IpAddress.subnetMaskFromLength(0) : IpAddress.subnetMaskFromLength(newSubnetMask);
     }
 
     public toString(): string {
@@ -75,7 +75,7 @@ export default class IpDirection {
     }
 
     public maskLenght(): number {
-        return this.matchLenght(IpDirection.fromString('255.255.255.255'));
+        return this.matchLenght(IpAddress.fromString('255.255.255.255'));
     }
 
     public toBinaryString(): string {
@@ -85,15 +85,15 @@ export default class IpDirection {
                 this.octetToBinaryString(this.fourthOctet);
     }
 
-    public isLessSpecificThan(otherSubnetMask: IpDirection): boolean {
+    public isLessSpecificThan(otherSubnetMask: IpAddress): boolean {
         return this.maskLenght() < otherSubnetMask.maskLenght();
     }
 
-    public isMoreSpecificThan(otherSubnetMask: IpDirection): boolean {
+    public isMoreSpecificThan(otherSubnetMask: IpAddress): boolean {
         return this.maskLenght() > otherSubnetMask.maskLenght();
     }
 
-    public isContainedBy(subnetMask: IpDirection, other: IpDirection, otherSubnetMask: IpDirection): boolean {
+    public isContainedBy(subnetMask: IpAddress, other: IpAddress, otherSubnetMask: IpAddress): boolean {
         const base = this.toNumber() >>> 0;
         const mask = subnetMask.toNumber() >>> 0;
         const otherBase = other.toNumber() >>> 0;
@@ -108,18 +108,18 @@ export default class IpDirection {
         return (min >>> 0) >= (otherMin >>> 0) && (max >>> 0) <= (otherMax >>> 0);
     }
 
-    public lastIpDefinedBy(subnetMask: IpDirection): IpDirection {
+    public lastIpDefinedBy(subnetMask: IpAddress): IpAddress {
         const base = this.toNumber() >>> 0;
         const mask = subnetMask.toNumber() >>> 0;
         const broadcast = base | (~mask >>> 0);
-        return IpDirection.fromNumber(broadcast >>> 0);
+        return IpAddress.fromNumber(broadcast >>> 0);
     }
 
     private octetToBinaryString(n: number): string {
         return n.toString(2).padStart(8, '0');
     }
 
-    private matchLenght(other: IpDirection): number {
+    private matchLenght(other: IpAddress): number {
         for (let i = 0; i < 32; i++) {
             if (this.toBinaryString()[i] !== other.toBinaryString()[i]) return i;
         }
@@ -134,35 +134,35 @@ export default class IpDirection {
     }
 }
 
-class IpDirectionOnLink extends IpDirection {
+class IpAddressOnLink extends IpAddress {
     static errorInvalidOperationForOnLinkIp = 'Operation not valid on "On-link"';
 
-    static fromString(aString: string): IpDirection {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    static fromString(aString: string): IpAddress {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
     constructor() {
         super(0, 0, 0, 0);
     }
 
-    public equals(other: IpDirection): boolean {
-        return other instanceof IpDirectionOnLink;
+    public equals(other: IpAddress): boolean {
+        return other instanceof IpAddressOnLink;
     }
 
-    public with_matches(ipDirection: IpDirection, subnetMask: IpDirection): number | -1 {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public with_matches(ipIpAddress: IpAddress, subnetMask: IpAddress): number | -1 {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public differsInTheLastBit(ipDirection: IpDirection, subnetMask: IpDirection): boolean {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public differsInTheLastBit(ipIpAddress: IpAddress, subnetMask: IpAddress): boolean {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public min(other: IpDirection): IpDirection {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public min(other: IpAddress): IpAddress {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public minus(n: number): IpDirection {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public minus(n: number): IpAddress {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
     public toString(): string {
@@ -170,26 +170,26 @@ class IpDirectionOnLink extends IpDirection {
     }
 
     public maskLenght(): number {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
     public toBinaryString(): string {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public isLessSpecificThan(otherSubnetMask: IpDirection): boolean {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public isLessSpecificThan(otherSubnetMask: IpAddress): boolean {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public isMoreSpecificThan(otherSubnetMask: IpDirection): boolean {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public isMoreSpecificThan(otherSubnetMask: IpAddress): boolean {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public isContainedBy(subnetMask: IpDirection, other: IpDirection, otherSubnetMask: IpDirection): boolean {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public isContainedBy(subnetMask: IpAddress, other: IpAddress, otherSubnetMask: IpAddress): boolean {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 
-    public lastIpDefinedBy(subnetMask: IpDirection): IpDirection {
-        throw new Error(IpDirectionOnLink.errorInvalidOperationForOnLinkIp);
+    public lastIpDefinedBy(subnetMask: IpAddress): IpAddress {
+        throw new Error(IpAddressOnLink.errorInvalidOperationForOnLinkIp);
     }
 }

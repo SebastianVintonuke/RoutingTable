@@ -1,6 +1,6 @@
 <template>
 	<div class="display-flex">
-		<template v-for="(segment, index) in getBinarySegments(handler.directionIp, handler.maskLength)" :key="index">
+		<template v-for="(segment, index) in getBinarySegments(handler.ipAddress, handler.maskLength)" :key="index">
 			<template v-for="(bit, bitIndex) in segment.bits" :key="bitIndex">
 				<label :class="{ mask: segment.inMask && bitIndex < segment.maskBits }">{{ bit }}</label>
 			</template>
@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 export type BinarySegmentMaskHandler = {
-    directionIp: string;
+    ipAddress: string;
     maskLength: number;
 };
 

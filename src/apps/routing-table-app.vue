@@ -11,8 +11,8 @@
 				<label>{{ logFirstLabel(row.optimization.type) }}</label>
 				<RoutingTableComponent :handler="{ entries: toEntryRowArray(row.optimization.affectedEntries as Array<RoutingTableEntry>), readonly: true }"/>
 				<div v-if="row.optimization.consecutivesExtraInfo" class="display-flex-column">
-					<BinarySegmentMask :handler="{ directionIp: row.optimization.consecutivesExtraInfo.binaryDestinationIp1, maskLength: row.optimization.consecutivesExtraInfo.subnetMaskLength }"/>
-					<BinarySegmentMask :handler="{ directionIp: row.optimization.consecutivesExtraInfo.binaryDestinationIp2, maskLength: row.optimization.consecutivesExtraInfo.subnetMaskLength }"/>
+					<BinarySegmentMask :handler="{ ipAddress: row.optimization.consecutivesExtraInfo.binaryDestinationIp1, maskLength: row.optimization.consecutivesExtraInfo.subnetMaskLength }"/>
+					<BinarySegmentMask :handler="{ ipAddress: row.optimization.consecutivesExtraInfo.binaryDestinationIp2, maskLength: row.optimization.consecutivesExtraInfo.subnetMaskLength }"/>
 				</div>
 				<label>{{ logSecondLabel(row.optimization.type) }}</label>
 				<RoutingTableComponent :handler="{ entries: toEntryRowArray([row.optimization.resultEntry as RoutingTableEntry]), readonly: true }"/>
@@ -40,7 +40,7 @@
 import { ref } from 'vue';
 import type { Ref } from 'vue';
 
-import IpDirection from '../objects/IpDirection/IpDirection';
+import IpAddress from '../objects/IpAddress/IpAddress';
 import RoutingTable from '../objects/RoutingTable/RoutingTable';
 import type { OptimizacionResult, RoutingTableEntry } from '../objects/RoutingTable/RoutingTable';	
 
@@ -200,10 +200,10 @@ const buttonHandler: Ref<ButtonHandler> = ref<ButtonHandler>({
 			routingTableHandler.value.entries.forEach(entry => {
 				if (!/^[0-9]+$/.test(entry.outputInterface)) throw new Error();
 				routingTable.setAnInterface(
-					IpDirection.fromString(entry.destinationIp),
-					IpDirection.fromString(entry.subnetMask),
+					IpAddress.fromString(entry.destinationIp),
+					IpAddress.fromString(entry.subnetMask),
 					Number.parseInt(entry.outputInterface),
-					IpDirection.fromString(entry.nextHop),
+					IpAddress.fromString(entry.nextHop),
 				);
 			});
 		} catch (e) {
@@ -229,10 +229,10 @@ const onOptimize = () => {
 
 	routingTableHandler.value.entries.forEach(entry => {
 		routingTable.setAnInterface(
-			IpDirection.fromString(entry.destinationIp),
-			IpDirection.fromString(entry.subnetMask),
+			IpAddress.fromString(entry.destinationIp),
+			IpAddress.fromString(entry.subnetMask),
 			Number.parseInt(entry.outputInterface),
-			IpDirection.fromString(entry.nextHop),
+			IpAddress.fromString(entry.nextHop),
 		);
 	});
 
@@ -261,10 +261,10 @@ function toEntryRow(entry: RoutingTableEntry): EntryRow {
 
 function toRoutingTableEntry(entry: EntryRow): RoutingTableEntry {
 	return {
-		destinationIp: IpDirection.fromString(entry.destinationIp),
-		subnetMask: IpDirection.fromString(entry.subnetMask),
+		destinationIp: IpAddress.fromString(entry.destinationIp),
+		subnetMask: IpAddress.fromString(entry.subnetMask),
 		outputInterface: Number.parseInt(entry.outputInterface),
-		nextHop: IpDirection.fromString(entry.nextHop),
+		nextHop: IpAddress.fromString(entry.nextHop),
 	};
 };
 
